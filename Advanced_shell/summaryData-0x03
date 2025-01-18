@@ -1,0 +1,28 @@
+#!/bin/bash
+# This script performs a get request and extracts json data from it using jq and saves them in .csv file
+
+SUMMARY_CSV="summary.csv"
+JSON_FILES=(*.json)
+
+if [ ! -f $SUMMARY_CSV ]; then
+    echo "$SUMMARY_CSV file doesn't exist";
+    exit 1;
+fi
+
+echo "Name,Weight(kg),Height(m)\n" > $SUMMARY_CSV
+
+for json in ${JSON_FILES[@]}; do
+    NAME=$(jq -r '.name' $json)
+    HEIGHT=$(jq -r '.height' $json)
+    FORMATTED_HEIGHT=$(printf '%0.1f' "$(echo "scale=1; $HEIGHT / 10" | bc)")
+    WEIGHT=$(jq -r '.weight' $json)
+
+    echo "$NAME,$((WEIGHT / 10)),$FORMATTED_HEIGHT\n" >> $SUMMARY_CSV
+done;
+
+awk --field-separator ',' '
+NR > 1 { height += $3; weight += $2; count++ }
+END {
+    printf "Average height: %0.2fm\n", height / count;
+    printf "Average Width: %0.2fm\n", weight / count;
+}' "$SUMMARY_CSV"

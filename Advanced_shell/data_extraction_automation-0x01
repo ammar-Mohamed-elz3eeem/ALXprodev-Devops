@@ -1,0 +1,17 @@
+#!/bin/bash
+# This script performs a get request and extracts json data from it using jq
+
+STDIN='data.json'
+
+if [ ! -f "$STDIN" ]; then
+    echo "$STDIN file not exist";
+    exit 1
+fi
+
+NAME=$(jq -r '.name' $STDIN)
+HEIGHT=$(jq -r '.height' $STDIN)
+FORMATTED_HEIGHT=$(printf '%0.1f' "$(echo "scale=1; $HEIGHT / 10" | bc)")
+WEIGHT=$(jq -r '.weight' $STDIN)
+TYPE=$(jq -r '.types.[0].type.name' $STDIN)
+
+echo "$NAME is of type $TYPE, weighs $(("$WEIGHT" / 10))kg, and is ${FORMATTED_HEIGHT}m tall.";

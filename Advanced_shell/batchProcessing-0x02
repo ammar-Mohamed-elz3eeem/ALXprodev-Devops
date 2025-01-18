@@ -1,0 +1,33 @@
+#!/bin/bash
+# This script performs a get request for multiple pockemons urls
+
+POKEMONS=("Bulbasaur" "Ivysaur" "Venusaur" "Charmander" "Charmeleon")
+BASE_URL="https://pokeapi.co/api/v2/pokemon"
+ERROR_FILE="error.log"
+
+for pokemon in ${POKEMONS[@]}; do
+    POKEMON_LOWER=$(echo "$pokemon" | awk '{print tolower($0)}')
+    POKEMON_FILE="$POKEMON_LOWER.json"
+
+    if [ ! -f $POKEMON_FILE ]; then
+        echo "File $POKEMON_FILE doesn't exist..., Creating it now :)";
+        touch $POKEMON_FILE;
+    fi
+
+    ATTEMPT=0
+    while [ $ATTEMPT -lt 3 ]; do
+        curl --silent -o $POKEMON_FILE --write-out '%{http_code}' "$BASE_URL/$POKEMON_LOWER" | grep -q 200 && break;
+        ATTEMPT=$((ATTEMPT + 1));
+        echo "Retrying ($ATTEMPT/3)..."
+        sleep 1
+    done
+
+    if [ $ATTEMPT -eq 3 ]; then
+        echo "Failed to fetch data for $pokemon" >> "$ERROR_FILE";
+        rm -rf $POKEMON_FILE;
+    else
+        echo "Data for $pokemon saved successfully in $POKEMON_FILE";
+    fi
+
+    sleep 2
+done

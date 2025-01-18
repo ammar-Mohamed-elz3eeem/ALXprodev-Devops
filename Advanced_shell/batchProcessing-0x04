@@ -1,0 +1,23 @@
+#!/bin/bash
+# This script performs a get request for multiple pockemons urls
+
+POKEMONS=("Bulbasaur" "Ivysaur" "Venusaur" "Charmander" "Charmeleon")
+BASE_URL="https://pokeapi.co/api/v2/pokemon"
+ERROR_FILE="error.log"
+
+fetch_data() {
+    local POKEMON=$(echo $1 | awk '{print tolower($0)}')
+    local OUTPUT_FILE="$POKEMON.json"
+
+    curl --silent -o "$OUTPUT_FILE" --write-out "%{http_code}" "$BASE_URL/$POKEMON" | grep --quiet 200 || {
+        echo "Failed to fetch data for $POKEMON" >> "$ERROR_FILE"
+        rm -f "$OUTPUT_FILE"
+    }
+}
+
+for POKEMON in ${POKEMONS[@]}; do
+    fetch_data "$POKEMON" &
+done
+
+wait
+echo "Data fetching completed."
