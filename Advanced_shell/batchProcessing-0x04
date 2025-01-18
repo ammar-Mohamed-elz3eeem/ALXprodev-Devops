@@ -31,4 +31,6 @@ for pid in "${pids[@]}"; do
     fi
 done
 
+jobs
+
 echo "Data fetching completed."
