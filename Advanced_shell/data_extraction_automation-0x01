@@ -8,10 +8,16 @@ if [ ! -f "$STDIN" ]; then
     exit 1
 fi
 
-NAME=$(jq -r '.name' $STDIN)
-HEIGHT=$(jq -r '.height' $STDIN)
-FORMATTED_HEIGHT=$(printf '%0.1f' "$(echo "scale=1; $HEIGHT / 10" | bc)")
-WEIGHT=$(jq -r '.weight' $STDIN)
-TYPE=$(jq -r '.types.[0].type.name' $STDIN)
+name=$(jq -r '.name' $STDIN)
+height=$(jq -r '.height' $STDIN)
+weight=$(jq -r '.weight' $STDIN)
+type=$(jq -r '.types.[0].type.name' $STDIN)
 
-echo "$NAME is of type $TYPE, weighs $(("$WEIGHT" / 10))kg, and is ${FORMATTED_HEIGHT}m tall.";
+formatted_height=$(echo $height | awk '{print $1 / 10}')
+formatted_weight=$(echo $weight | awk '{print $1 / 10}')
+
+output="$name is of type $type, weighs ${formatted_weight}kg, and is ${formatted_height}m tall.";
+
+output=$(echo $output | sed 's/type/category/')
+
+echo $output;

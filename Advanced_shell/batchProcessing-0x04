@@ -15,9 +15,20 @@ fetch_data() {
     }
 }
 
+pids=()
+
 for POKEMON in ${POKEMONS[@]}; do
     fetch_data "$POKEMON" &
+    pids+=($!)
+    sleep 1
 done
 
-wait
+for pid in "${pids[@]}"; do
+    wait $pid;
+    if [[ $? -ne 0 ]]; then
+        echo "Process $pid fetched, killing process...";
+        kill $pid;
+    fi
+done
+
 echo "Data fetching completed."
