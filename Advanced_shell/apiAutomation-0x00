@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script performs a get request
 
-ERROR_FILE="error.log"
+ERROR_FILE="errors.txt"
 OUTPUT_FILE="data.json"
 URL="https://pokeapi.co/api/v2/pokemon/pikachu"
 
